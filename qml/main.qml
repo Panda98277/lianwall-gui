@@ -33,6 +33,60 @@ ApplicationWindow {
         }
     }
 
+    // Daemon 错误提示
+    Connections {
+        target: DaemonState
+        function onDaemonError(code, message, recoverable) {
+            errorLabel.text = message
+            errorPopup.open()
+        }
+    }
+
+    // 顶部错误横幅
+    Popup {
+        id: errorPopup
+        x: (parent.width - width) / 2
+        y: 8
+        width: Math.min(parent.width - 40, 480)
+        modal: false
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            radius: 8
+            color: "#D32F2F"
+            opacity: 0.95
+        }
+
+        contentItem: RowLayout {
+            spacing: 8
+            Label {
+                id: errorLabel
+                Layout.fillWidth: true
+                color: "white"
+                font.pixelSize: 13
+                wrapMode: Text.Wrap
+            }
+            Label {
+                text: "✕"
+                color: "white"
+                font.pixelSize: 14
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: errorPopup.close()
+                }
+            }
+        }
+
+        // 5 秒后自动关闭
+        Timer {
+            id: errorAutoClose
+            interval: 5000
+            running: errorPopup.visible
+            onTriggered: errorPopup.close()
+        }
+    }
+
     // 主题初始化
     Component.onCompleted: {
         App.Theme.current = ConfigManager.theme

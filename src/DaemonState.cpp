@@ -160,7 +160,7 @@ void DaemonState::onEvent(const Daemon::DaemonEvent &event)
         auto d = event.asError();
         qWarning() << "[DaemonState] Error event:" << d.message;
         emit daemonError(
-            QString(), // errorCodeToString not exposed, use raw message
+            Daemon::errorCodeToString(d.code),
             d.message, d.recoverable);
         break;
     }
@@ -193,7 +193,12 @@ void DaemonState::applyStatus(const Daemon::StatusPayload &s)
     }
     if (m_vramDegraded != s.vramDegraded) { m_vramDegraded = s.vramDegraded; emit vramDegradedChanged(); }
     if (m_uptimeSecs != s.uptimeSecs) { m_uptimeSecs = s.uptimeSecs; emit uptimeChanged(); }
-    if (m_nextSwitchSecs != s.nextSwitchSecs) { m_nextSwitchSecs = s.nextSwitchSecs; emit nextSwitchSecsChanged(); }
+
+    // 始终更新并发信号：CountdownBar 本地递减与 daemon 值脱钩，
+    // 相等性检查会导致倒计时走到 0 后永远收不到新值。
+    m_nextSwitchSecs = s.nextSwitchSecs;
+    emit nextSwitchSecsChanged();
+
     if (m_nextTimePoint != s.nextTimePoint) { m_nextTimePoint = s.nextTimePoint; emit nextTimePointChanged(); }
     if (m_timePointsCount != s.timePointsCount) { m_timePointsCount = s.timePointsCount; emit timePointsCountChanged(); }
     if (m_protocolVersion != s.protocolVersion) { m_protocolVersion = s.protocolVersion; emit protocolVersionChanged(); }

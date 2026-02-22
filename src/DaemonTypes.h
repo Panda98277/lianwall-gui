@@ -176,6 +176,23 @@ inline ErrorCode errorCodeFromString(const QString &s) {
     return ErrorCode::Unknown;
 }
 
+inline QString errorCodeToString(ErrorCode c) {
+    switch (c) {
+    case ErrorCode::InvalidRequest:     return QStringLiteral("invalid_request");
+    case ErrorCode::NotFound:           return QStringLiteral("not_found");
+    case ErrorCode::EngineError:        return QStringLiteral("engine_error");
+    case ErrorCode::ConfigError:        return QStringLiteral("config_error");
+    case ErrorCode::PermissionDenied:   return QStringLiteral("permission_denied");
+    case ErrorCode::Timeout:            return QStringLiteral("timeout");
+    case ErrorCode::EmptySpace:         return QStringLiteral("empty_space");
+    case ErrorCode::NoHistory:          return QStringLiteral("no_history");
+    case ErrorCode::AlreadySubscribed:  return QStringLiteral("already_subscribed");
+    case ErrorCode::NotSubscribed:      return QStringLiteral("not_subscribed");
+    case ErrorCode::InternalError:      return QStringLiteral("internal_error");
+    default:                            return QStringLiteral("unknown");
+    }
+}
+
 // ============================================================================
 // 响应数据结构
 // ============================================================================

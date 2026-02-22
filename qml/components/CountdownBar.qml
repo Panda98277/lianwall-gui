@@ -72,8 +72,27 @@ Item {
         repeat: true
         running: countdownRoot.isActive
         onTriggered: {
-            if (displaySecs > 0)
+            if (displaySecs > 0) {
                 displaySecs--
+                if (displaySecs === 0) {
+                    // 倒计时归零 → 延迟刷新获取 daemon 新的 nextSwitchSecs
+                    // 延迟 1.5 秒，给 daemon 足够时间处理 tick 并重置计时器
+                    recoveryTimer.start()
+                }
+            }
+        }
+    }
+
+    // 倒计时归零后的恢复定时器
+    // 解决：daemon scheduler tick 后未产生 WallpaperChanged 事件时
+    //       GUI 无法得知计时器已重置的问题
+    Timer {
+        id: recoveryTimer
+        interval: 1500
+        repeat: false
+        onTriggered: {
+            console.log("[CountdownBar] recovery: refreshing after countdown reached 0")
+            DaemonState.refresh()
         }
     }
 

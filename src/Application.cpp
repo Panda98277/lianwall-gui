@@ -346,14 +346,28 @@ void Application::daemonNext()
 {
     qDebug() << "[Application] daemonNext() called, connected:" << m_daemonClient->isConnected();
     if (m_daemonClient->isConnected())
-        m_daemonClient->next();
+        m_daemonClient->next([this](const Daemon::Response &r) {
+            if (r.type == Daemon::ResponseType::Error) {
+                auto err = r.asError();
+                qWarning() << "[Application] Next failed:" << err.message;
+                emit m_daemonState->daemonError(
+                    Daemon::errorCodeToString(err.code), err.message, true);
+            }
+        });
 }
 
 void Application::daemonPrev()
 {
     qDebug() << "[Application] daemonPrev() called, connected:" << m_daemonClient->isConnected();
     if (m_daemonClient->isConnected())
-        m_daemonClient->prev();
+        m_daemonClient->prev([this](const Daemon::Response &r) {
+            if (r.type == Daemon::ResponseType::Error) {
+                auto err = r.asError();
+                qWarning() << "[Application] Prev failed:" << err.message;
+                emit m_daemonState->daemonError(
+                    Daemon::errorCodeToString(err.code), err.message, true);
+            }
+        });
 }
 
 void Application::daemonToggleLock()
@@ -386,7 +400,14 @@ void Application::daemonSetMode(const QString &mode)
              << "connected:" << m_daemonClient->isConnected();
     if (m_daemonClient->isConnected()) {
         auto m = Daemon::wallModeFromString(mode);
-        m_daemonClient->setMode(m);
+        m_daemonClient->setMode(m, [this](const Daemon::Response &r) {
+            if (r.type == Daemon::ResponseType::Error) {
+                auto err = r.asError();
+                qWarning() << "[Application] SetMode failed:" << err.message;
+                emit m_daemonState->daemonError(
+                    Daemon::errorCodeToString(err.code), err.message, true);
+            }
+        });
     }
 }
 
