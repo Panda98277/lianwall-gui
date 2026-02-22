@@ -124,9 +124,13 @@ void DaemonState::onEvent(const Daemon::DaemonEvent &event)
         if (changed)
             emit vramChanged();
 
-        bool degraded = (d.action == Daemon::VramAction::Downgrade);
-        if (m_vramDegraded != degraded) {
-            m_vramDegraded = degraded;
+        // 仅在明确的降级/恢复动作时更新降级状态
+        // Keep 表示维持现状，不应改变 degraded 标志
+        if (d.action == Daemon::VramAction::Downgrade && !m_vramDegraded) {
+            m_vramDegraded = true;
+            emit vramDegradedChanged();
+        } else if (d.action == Daemon::VramAction::Upgrade && m_vramDegraded) {
+            m_vramDegraded = false;
             emit vramDegradedChanged();
         }
         break;

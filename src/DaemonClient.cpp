@@ -105,6 +105,10 @@ void DaemonClient::onDisconnected()
         if (cb) {
             Daemon::Response errResp;
             errResp.type = Daemon::ResponseType::Error;
+            errResp.payload = QJsonObject{
+                {QStringLiteral("code"), QStringLiteral("connection_lost")},
+                {QStringLiteral("message"), QStringLiteral("Connection to daemon lost")},
+            };
             cb(errResp);
         }
     }
@@ -178,6 +182,10 @@ void DaemonClient::sendRequest(const QByteArray &data, ResponseCallback cb)
         if (cb) {
             Daemon::Response errResp;
             errResp.type = Daemon::ResponseType::Error;
+            errResp.payload = QJsonObject{
+                {QStringLiteral("code"), QStringLiteral("connection_lost")},
+                {QStringLiteral("message"), QStringLiteral("Not connected to daemon")},
+            };
             cb(errResp);
         }
         return;

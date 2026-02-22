@@ -160,7 +160,7 @@ Dialog {
                 text: detailDialog.wallpaperIsCurrent ? qsTr("✓ 当前壁纸") : qsTr("设为当前")
                 enabled: !detailDialog.wallpaperIsCurrent && DaemonState.daemonConnected
                 onClicked: {
-                    WallpaperFilterModel.setAsCurrent(detailDialog.wallpaperRow)
+                    WallpaperFilterModel.setAsCurrentByPath(detailDialog.wallpaperPath)
                     detailDialog.close()
                 }
                 background: Rectangle {
@@ -184,7 +184,7 @@ Dialog {
                 text: detailDialog.wallpaperLocked ? qsTr("🔓 解锁") : qsTr("🔒 锁定")
                 enabled: DaemonState.daemonConnected
                 onClicked: {
-                    WallpaperFilterModel.toggleLock(detailDialog.wallpaperRow)
+                    WallpaperFilterModel.toggleLockByPath(detailDialog.wallpaperPath)
                     detailDialog.wallpaperLocked = !detailDialog.wallpaperLocked
                 }
                 background: Rectangle {

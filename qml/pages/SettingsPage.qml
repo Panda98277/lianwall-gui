@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import ".." as App
+import "../components" as Components
 
 /// Settings 设置页
 /// 壁纸路径 + 界面设置
@@ -244,6 +245,279 @@ Item {
                                 onSelected: function(index) {
                                     ConfigManager.setLanguage(model[index].value)
                                     LianwallApp.switchLanguage(model[index].value)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ============================================================
+                // 分区 3：运行模式
+                // ============================================================
+                ConfigSection {
+                    title: qsTr("🔀 运行模式")
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: App.Theme.spacingMedium
+
+                        ConfigRow {
+                            label: qsTr("默认模式")
+                            hint: qsTr("守护进程启动时使用")
+
+                            RowLayout {
+                                spacing: App.Theme.spacingSmall
+
+                                ModeChip {
+                                    text: "🎬 Video"
+                                    selected: ConfigManager.mode === "Video"
+                                    onClicked: {
+                                        if (DaemonState.daemonConnected)
+                                            ConfigManager.setMode("Video")
+                                    }
+                                }
+                                ModeChip {
+                                    text: "🖼️ Image"
+                                    selected: ConfigManager.mode === "Image"
+                                    onClicked: {
+                                        if (DaemonState.daemonConnected)
+                                            ConfigManager.setMode("Image")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ============================================================
+                // 分区 4：动态壁纸引擎
+                // ============================================================
+                ConfigSection {
+                    title: qsTr("🎬 动态壁纸引擎")
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: App.Theme.spacingMedium
+
+                        ConfigRow {
+                            label: qsTr("切换间隔")
+                            hint: qsTr("10 ~ 86400 (最大24h)")
+
+                            NumberInput {
+                                value: ConfigManager.videoInterval
+                                minValue: 10
+                                maxValue: 86400
+                                suffix: qsTr(" 秒")
+                                enabled: DaemonState.daemonConnected
+                                onValueEdited: function(v) { ConfigManager.setVideoInterval(v) }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("显示器")
+                            hint: qsTr("* = 全部")
+
+                            StyledTextInput {
+                                inputText: ConfigManager.videoDisplay
+                                placeholder: "*"
+                                enabled: DaemonState.daemonConnected
+                                onTextCommitted: function(t) { ConfigManager.setVideoDisplay(t) }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("mpvpaper 参数")
+
+                            Components.TagEditor {
+                                Layout.fillWidth: true
+                                tags: ConfigManager.mpvpaperArgs
+                                onTagsEdited: function(newTags) {
+                                    if (DaemonState.daemonConnected)
+                                        ConfigManager.setMpvpaperArgs(newTags)
+                                }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("mpv 参数")
+
+                            Components.TagEditor {
+                                Layout.fillWidth: true
+                                tags: ConfigManager.mpvArgs
+                                onTagsEdited: function(newTags) {
+                                    if (DaemonState.daemonConnected)
+                                        ConfigManager.setMpvArgs(newTags)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ============================================================
+                // 分区 5：静态壁纸引擎
+                // ============================================================
+                ConfigSection {
+                    title: qsTr("🖼️ 静态壁纸引擎")
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: App.Theme.spacingMedium
+
+                        ConfigRow {
+                            label: qsTr("切换间隔")
+                            hint: qsTr("10 ~ 86400 (最大24h)")
+
+                            NumberInput {
+                                value: ConfigManager.imageInterval
+                                minValue: 10
+                                maxValue: 86400
+                                suffix: qsTr(" 秒")
+                                enabled: DaemonState.daemonConnected
+                                onValueEdited: function(v) { ConfigManager.setImageInterval(v) }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("显示器")
+                            hint: qsTr("空 = 全部")
+
+                            StyledTextInput {
+                                inputText: ConfigManager.imageOutputs
+                                placeholder: ""
+                                enabled: DaemonState.daemonConnected
+                                onTextCommitted: function(t) { ConfigManager.setImageOutputs(t) }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("swww 参数")
+
+                            Components.TagEditor {
+                                Layout.fillWidth: true
+                                tags: ConfigManager.swwwArgs
+                                onTagsEdited: function(newTags) {
+                                    if (DaemonState.daemonConnected)
+                                        ConfigManager.setSwwwArgs(newTags)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ============================================================
+                // 分区 6：显存监控
+                // ============================================================
+                ConfigSection {
+                    title: qsTr("🎮 显存监控")
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: App.Theme.spacingMedium
+
+                        ConfigRow {
+                            label: qsTr("启用监控")
+
+                            Switch {
+                                checked: ConfigManager.vramEnabled
+                                enabled: DaemonState.daemonConnected
+                                onToggled: ConfigManager.setVramEnabled(checked)
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("降级阈值")
+                            hint: "5% ~ 50%"
+
+                            StyledSlider {
+                                Layout.fillWidth: true
+                                value: ConfigManager.vramThresholdPercent
+                                minValue: 5.0
+                                maxValue: 50.0
+                                suffix: "%"
+                                enabled: DaemonState.daemonConnected && ConfigManager.vramEnabled
+                                onValueEdited: function(v) { ConfigManager.setVramThresholdPercent(v) }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("恢复阈值")
+                            hint: "20% ~ 80%"
+
+                            StyledSlider {
+                                Layout.fillWidth: true
+                                value: ConfigManager.vramRecoveryPercent
+                                minValue: 20.0
+                                maxValue: 80.0
+                                suffix: "%"
+                                enabled: DaemonState.daemonConnected && ConfigManager.vramEnabled
+                                onValueEdited: function(v) { ConfigManager.setVramRecoveryPercent(v) }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("检测间隔")
+                            hint: "1 ~ 60"
+
+                            NumberInput {
+                                value: ConfigManager.vramCheckInterval
+                                minValue: 1
+                                maxValue: 60
+                                suffix: qsTr(" 秒")
+                                enabled: DaemonState.daemonConnected && ConfigManager.vramEnabled
+                                onValueEdited: function(v) { ConfigManager.setVramCheckInterval(v) }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("冷却时间")
+                            hint: "10 ~ 600"
+
+                            NumberInput {
+                                value: ConfigManager.vramCooldownSeconds
+                                minValue: 10
+                                maxValue: 600
+                                suffix: qsTr(" 秒")
+                                enabled: DaemonState.daemonConnected && ConfigManager.vramEnabled
+                                onValueEdited: function(v) { ConfigManager.setVramCooldownSeconds(v) }
+                            }
+                        }
+                    }
+                }
+
+                // ============================================================
+                // 分区 7：守护进程
+                // ============================================================
+                ConfigSection {
+                    title: qsTr("🔧 守护进程")
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: App.Theme.spacingMedium
+
+                        ConfigRow {
+                            label: qsTr("日志级别")
+
+                            StyledSelect {
+                                selectWidth: 140
+                                model: [
+                                    { text: "Error", value: "error" },
+                                    { text: "Warn", value: "warn" },
+                                    { text: "Info", value: "info" },
+                                    { text: "Debug", value: "debug" },
+                                    { text: "Trace", value: "trace" }
+                                ]
+                                currentIndex: {
+                                    var lvl = ConfigManager.logLevel
+                                    if (lvl === "error") return 0
+                                    if (lvl === "warn") return 1
+                                    if (lvl === "info") return 2
+                                    if (lvl === "debug") return 3
+                                    if (lvl === "trace") return 4
+                                    return 2
+                                }
+                                onSelected: function(idx) {
+                                    if (DaemonState.daemonConnected)
+                                        ConfigManager.setLogLevel(model[idx].value)
                                 }
                             }
                         }
@@ -549,6 +823,154 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    /// 数字输入框（带验证和范围约束）
+    component NumberInput: Item {
+        id: numInputRoot
+        property int value: 0
+        property int minValue: 0
+        property int maxValue: 99999
+        property string suffix: ""
+        signal valueEdited(int newValue)
+
+        implicitWidth: 160
+        implicitHeight: 32
+
+        Rectangle {
+            anchors.fill: parent
+            radius: App.Theme.radiusSmall
+            color: numInputRoot.enabled ? App.Theme.input : App.Theme.surface
+            border.width: 1
+            border.color: numField.activeFocus ? App.Theme.accent : App.Theme.border
+            opacity: numInputRoot.enabled ? 1.0 : 0.5
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: App.Theme.spacingSmall
+                anchors.rightMargin: App.Theme.spacingSmall
+                spacing: 2
+
+                TextInput {
+                    id: numField
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: App.Theme.fontSizeMedium
+                    font.family: "monospace"
+                    color: App.Theme.text
+                    text: numInputRoot.value.toString()
+                    validator: IntValidator { bottom: numInputRoot.minValue; top: numInputRoot.maxValue }
+                    selectByMouse: true
+                    clip: true
+                    enabled: numInputRoot.enabled
+
+                    onEditingFinished: {
+                        var v = parseInt(text)
+                        if (!isNaN(v)) {
+                            v = Math.max(numInputRoot.minValue, Math.min(numInputRoot.maxValue, v))
+                            numInputRoot.valueEdited(v)
+                        }
+                    }
+                }
+
+                Text {
+                    text: numInputRoot.suffix
+                    font.pixelSize: App.Theme.fontSizeSmall
+                    color: App.Theme.textSecondary
+                    visible: numInputRoot.suffix.length > 0
+                }
+            }
+        }
+
+        onValueChanged: {
+            if (!numField.activeFocus)
+                numField.text = value.toString()
+        }
+    }
+
+    /// 文本输入框（Enter / 失焦提交）
+    component StyledTextInput: Item {
+        id: textInputRoot
+        property string inputText: ""
+        property string placeholder: ""
+        signal textCommitted(string newText)
+
+        implicitWidth: 200
+        implicitHeight: 32
+
+        Rectangle {
+            anchors.fill: parent
+            radius: App.Theme.radiusSmall
+            color: textInputRoot.enabled ? App.Theme.input : App.Theme.surface
+            border.width: 1
+            border.color: textField.activeFocus ? App.Theme.accent : App.Theme.border
+            opacity: textInputRoot.enabled ? 1.0 : 0.5
+
+            TextInput {
+                id: textField
+                anchors.fill: parent
+                anchors.margins: App.Theme.spacingSmall
+                verticalAlignment: Text.AlignVCenter
+                font.pixelSize: App.Theme.fontSizeMedium
+                color: App.Theme.text
+                text: textInputRoot.inputText
+                selectByMouse: true
+                clip: true
+                enabled: textInputRoot.enabled
+
+                onEditingFinished: {
+                    textInputRoot.textCommitted(text)
+                }
+
+                Text {
+                    anchors.fill: parent
+                    verticalAlignment: Text.AlignVCenter
+                    text: textInputRoot.placeholder
+                    font.pixelSize: App.Theme.fontSizeMedium
+                    color: App.Theme.textSecondary
+                    visible: !textField.text && !textField.activeFocus
+                }
+            }
+        }
+
+        onInputTextChanged: {
+            if (!textField.activeFocus)
+                textField.text = inputText
+        }
+    }
+
+    /// 滑块（带数值显示）
+    component StyledSlider: RowLayout {
+        id: sliderRoot
+        property real value: 0
+        property real minValue: 0
+        property real maxValue: 100
+        property real stepSize: 0.5
+        property string suffix: "%"
+        signal valueEdited(real newValue)
+
+        spacing: App.Theme.spacingSmall
+
+        Slider {
+            id: sliderCtrl
+            Layout.fillWidth: true
+            from: sliderRoot.minValue
+            to: sliderRoot.maxValue
+            stepSize: sliderRoot.stepSize
+            value: sliderRoot.value
+            enabled: sliderRoot.enabled
+            onMoved: sliderRoot.valueEdited(value)
+        }
+
+        Text {
+            text: sliderCtrl.value.toFixed(1) + sliderRoot.suffix
+            font.pixelSize: App.Theme.fontSizeSmall
+            font.family: "monospace"
+            color: App.Theme.text
+            Layout.preferredWidth: 54
+            horizontalAlignment: Text.AlignRight
         }
     }
 }

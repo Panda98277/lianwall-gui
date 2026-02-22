@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import ".." as App
+import "../components" as Components
 
 /// Dashboard 仪表盘
 /// 当前壁纸预览 + 状态信息 + 快捷操作
@@ -188,8 +189,27 @@ Item {
                     }
                 }
 
+                // ============================================================                // 倒计时进度条
                 // ============================================================
-                // 状态信息网格
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: countdownContent.height + App.Theme.spacingMedium * 2
+                    radius: App.Theme.radiusLarge
+                    color: App.Theme.card
+                    border.width: 1
+                    border.color: App.Theme.border
+                    visible: DaemonState.daemonConnected
+
+                    Components.CountdownBar {
+                        id: countdownContent
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.margins: App.Theme.spacingMedium
+                    }
+                }
+
+                // ============================================================                // 状态信息网格
                 // ============================================================
                 Rectangle {
                     Layout.fillWidth: true
@@ -233,7 +253,7 @@ Item {
                     color: App.Theme.card
                     border.width: 1
                     border.color: DaemonState.vramDegraded ? App.Theme.warning : App.Theme.border
-                    visible: DaemonState.vramTotalMb > 0
+                    visible: DaemonState.vramTotalMb > 0 && ConfigManager.vramEnabled
 
                     ColumnLayout {
                         id: vramCol

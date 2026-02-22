@@ -1,4 +1,5 @@
 #include "ThumbnailProvider.h"
+#include "Constants.h"
 
 #include <QCryptographicHash>
 #include <QDir>
@@ -52,14 +53,19 @@ void ThumbnailResponse::run()
         return;
     }
 
-    // 检查缓存
+    // 检查缓存（含修改时间失效检测）
     QString cached = cachePath();
     if (QFileInfo::exists(cached)) {
-        m_image = QImage(cached);
-        if (!m_image.isNull()) {
-            emit finished();
-            return;
+        QFileInfo sourceInfo(m_path);
+        QFileInfo cacheInfo(cached);
+        if (sourceInfo.lastModified() <= cacheInfo.lastModified()) {
+            m_image = QImage(cached);
+            if (!m_image.isNull()) {
+                emit finished();
+                return;
+            }
         }
+        // 源文件比缓存新，重新生成
     }
 
     // 生成缩略图
@@ -122,7 +128,7 @@ QImage ThumbnailResponse::loadVideoFrame() const
 
     QStringList args = {
         "-i", m_path,                  // 输入文件
-        "-ss", "1",                    // 跳到第 1 秒（放在 -i 后 = output seeking，更可靠）
+        "-ss", QString::number(LianwallGui::Thumbnail::SEEK_SECONDS),  // Constants.h 定义的截取秒数
         "-vframes", "1",               // 只截 1 帧
         "-vf", QStringLiteral("scale=%1:%2:force_original_aspect_ratio=decrease")
                    .arg(m_requestedSize.width())
@@ -154,7 +160,7 @@ QImage ThumbnailResponse::loadVideoFrame() const
         // ffmpeg -ss 5 可能失败（视频不够长），尝试 -ss 0
         QProcess retry;
         retry.setProcessChannelMode(QProcess::ForwardedErrorChannel);
-        args[2] = "0";   // -ss 0
+        args[3] = "0";   // -ss 值改为 0（index: 0=-i, 1=path, 2=-ss, 3=value）
         retry.start(QStringLiteral("ffmpeg"), args);
 
         if (!retry.waitForStarted(5000) || !retry.waitForFinished(kFfmpegTimeoutMs)) {

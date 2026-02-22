@@ -83,6 +83,12 @@ public:
     /// 判断文件是否为视频
     static bool isVideoFile(const QString &filename);
 
+    /// 通过路径切换壁纸锁定状态（安全：不依赖行号）
+    Q_INVOKABLE void toggleLockByPath(const QString &path);
+
+    /// 通过路径设为当前壁纸（安全：不依赖行号）
+    Q_INVOKABLE void setAsCurrentByPath(const QString &path);
+
 signals:
     void modeChanged();
     void loadingChanged();
@@ -134,6 +140,9 @@ public:
     Q_INVOKABLE bool lockedAt(int proxyRow) const;
     Q_INVOKABLE bool isCurrentAt(int proxyRow) const;
     Q_INVOKABLE bool isVideoAt(int proxyRow) const;
+
+    Q_INVOKABLE void toggleLockByPath(const QString &path);
+    Q_INVOKABLE void setAsCurrentByPath(const QString &path);
 
 signals:
     void searchTextChanged();

@@ -107,16 +107,19 @@ void WallpaperListModel::toggleLock(int row)
     if (row < 0 || row >= m_items.size())
         return;
 
-    const auto &item = m_items.at(row);
-    qDebug() << "[WallpaperListModel] ToggleLock:" << item.filename;
+    const auto path = m_items.at(row).path;
+    qDebug() << "[WallpaperListModel] ToggleLock:" << m_items.at(row).filename;
 
-    m_client->toggleLock(item.path, [this, row](const Daemon::Response &resp) {
+    m_client->toggleLock(path, [this, path](const Daemon::Response &resp) {
         if (resp.type == Daemon::ResponseType::Ok) {
-            // 立即本地更新（daemon 也会推送 SpaceUpdated 事件，但本地先更新提升响应感）
-            if (row < m_items.size()) {
-                m_items[row].locked = !m_items[row].locked;
-                auto idx = index(row);
-                emit dataChanged(idx, idx, { LockedRole });
+            // 按 path 查找（列表可能已被 load() 重置，row 不再可靠）
+            for (int i = 0; i < m_items.size(); ++i) {
+                if (m_items[i].path == path) {
+                    m_items[i].locked = !m_items[i].locked;
+                    auto idx = index(i);
+                    emit dataChanged(idx, idx, { LockedRole });
+                    break;
+                }
             }
         } else if (resp.type == Daemon::ResponseType::Error) {
             auto err = resp.asError();
@@ -177,6 +180,26 @@ bool WallpaperListModel::isVideoFile(const QString &filename)
 {
     auto ext = QFileInfo(filename).suffix().toLower();
     return kVideoExtensions.contains(ext);
+}
+
+void WallpaperListModel::toggleLockByPath(const QString &path)
+{
+    for (int i = 0; i < m_items.size(); ++i) {
+        if (m_items[i].path == path) {
+            toggleLock(i);
+            return;
+        }
+    }
+}
+
+void WallpaperListModel::setAsCurrentByPath(const QString &path)
+{
+    for (int i = 0; i < m_items.size(); ++i) {
+        if (m_items[i].path == path) {
+            setAsCurrent(i);
+            return;
+        }
+    }
 }
 
 // ============================================================================
@@ -295,4 +318,16 @@ bool WallpaperFilterModel::isVideoAt(int proxyRow) const
     auto srcIdx = mapToSource(index(proxyRow, 0));
     auto filename = src->filenameAt(srcIdx.row());
     return WallpaperListModel::isVideoFile(filename);
+}
+
+void WallpaperFilterModel::toggleLockByPath(const QString &path)
+{
+    auto src = qobject_cast<WallpaperListModel*>(sourceModel());
+    if (src) src->toggleLockByPath(path);
+}
+
+void WallpaperFilterModel::setAsCurrentByPath(const QString &path)
+{
+    auto src = qobject_cast<WallpaperListModel*>(sourceModel());
+    if (src) src->setAsCurrentByPath(path);
 }

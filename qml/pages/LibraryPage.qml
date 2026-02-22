@@ -27,10 +27,15 @@ Item {
         }
     }
 
-    // daemon SpaceUpdated 事件后自动刷新
+    // daemon SpaceUpdated / 壁纸切换后自动刷新
     Connections {
         target: DaemonState
         function onTotalWallpapersChanged() {
+            if (libRoot.activated && DaemonState.daemonConnected) {
+                refreshTimer.restart()
+            }
+        }
+        function onWallpaperChanged(path, filename, trigger) {
             if (libRoot.activated && DaemonState.daemonConnected) {
                 refreshTimer.restart()
             }
@@ -176,7 +181,6 @@ Item {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        LianwallApp.daemonReloadConfig()
                         WallpaperModel.load()
                     }
                 }

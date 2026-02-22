@@ -26,6 +26,13 @@ ApplicationWindow {
         LianwallApp.hideMainWindow()
     }
 
+    // 窗口重新显示时刷新 daemon 状态（恢复倒计时、VRAM 等）
+    onVisibleChanged: {
+        if (visible && DaemonState.daemonConnected) {
+            DaemonState.refresh()
+        }
+    }
+
     // 主题初始化
     Component.onCompleted: {
         App.Theme.current = ConfigManager.theme
