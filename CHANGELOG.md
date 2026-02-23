@@ -4,6 +4,7 @@
 
 | 版本 | 日期 | 主要变化 |
 |------|------|----------|
+| [1.3.0](changelogs/CHANGELOG-1.3.0.md) | 2026-02-23 | Daemon 命令错误回调、错误弹窗、预览占位精细化、预览框高度修复 |
 | [1.2.0](changelogs/CHANGELOG-1.2.0.md) | 2026-02-23 | 完整设置页、i18n 补全、DaemonClient/模型层大量 bug 修复 |
 | [1.1.1](changelogs/CHANGELOG-1.1.1.md) | 2026-02-08 | 配置路径统一至 ~/.config/lianwall/ |
 | [1.1.0](changelogs/CHANGELOG-1.1.0.md) | 2026-02-07 | 主色调切换、单实例保护、托盘重启修复、壁纸库刷新优化 |
