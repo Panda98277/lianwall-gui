@@ -58,7 +58,8 @@ Item {
                         // 壁纸预览
                         Rectangle {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: Math.min(width * Screen.height / Screen.width, 360)
+                            Layout.preferredHeight: width * Screen.height / Screen.width
+                            Layout.maximumHeight: 360
                             radius: App.Theme.radiusMedium
                             color: App.Theme.surface
                             clip: true
