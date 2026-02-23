@@ -57,7 +57,7 @@ Item {
                         // 壁纸预览
                         Rectangle {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: width * 9 / 16   // 16:9 比例
+                            Layout.preferredHeight: width * 9 / 16
                             radius: App.Theme.radiusMedium
                             color: App.Theme.surface
                             clip: true
@@ -80,7 +80,7 @@ Item {
                                 cache: false
                             }
 
-                            // 无壁纸 / 视频占位
+                            // 无壁纸 / 加载中 / 错误占位
                             ColumnLayout {
                                 anchors.centerIn: parent
                                 spacing: App.Theme.spacingSmall
@@ -88,14 +88,25 @@ Item {
 
                                 Text {
                                     Layout.alignment: Qt.AlignHCenter
-                                    text: dashRoot.isVideo ? "🎬" : "🖼️"
+                                    text: {
+                                        if (!DaemonState.daemonConnected) return "🔌"
+                                        if (!DaemonState.currentPath)     return "🖼️"
+                                        if (previewImage.status === Image.Error) return "⚠️"
+                                        return dashRoot.isVideo ? "🎬" : "🖼️"
+                                    }
                                     font.pixelSize: 48
                                 }
                                 Text {
                                     Layout.alignment: Qt.AlignHCenter
-                                    text: DaemonState.currentPath
-                                          ? qsTr("加载中...")
-                                          : qsTr("暂无壁纸")
+                                    text: {
+                                        if (!DaemonState.daemonConnected)
+                                            return qsTr("守护进程未连接")
+                                        if (!DaemonState.currentPath)
+                                            return qsTr("暂无壁纸")
+                                        if (previewImage.status === Image.Error)
+                                            return qsTr("预览加载失败")
+                                        return qsTr("加载中...")
+                                    }
                                     font.pixelSize: App.Theme.fontSizeSmall
                                     color: App.Theme.textSecondary
                                 }
