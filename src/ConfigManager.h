@@ -48,6 +48,8 @@ class ConfigManager : public QObject
     Q_PROPERTY(double vramRecoveryPercent READ vramRecoveryPercent NOTIFY vramRecoveryChanged)
     Q_PROPERTY(int vramCheckInterval READ vramCheckInterval NOTIFY vramCheckIntervalChanged)
     Q_PROPERTY(int vramCooldownSeconds READ vramCooldownSeconds NOTIFY vramCooldownChanged)
+    Q_PROPERTY(QString vramBackend READ vramBackend NOTIFY vramBackendChanged)
+    Q_PROPERTY(QString vramCustomCommand READ vramCustomCommand NOTIFY vramCustomCommandChanged)
 
     // --- daemon ---
     Q_PROPERTY(QString logLevel READ logLevel NOTIFY logLevelChanged)
@@ -81,6 +83,8 @@ public:
     double vramRecoveryPercent() const { return m_vramRecovery; }
     int vramCheckInterval() const { return m_vramCheckInterval; }
     int vramCooldownSeconds() const { return m_vramCooldown; }
+    QString vramBackend() const { return m_vramBackend; }
+    QString vramCustomCommand() const { return m_vramCustomCommand; }
     QString logLevel() const { return m_logLevel; }
     bool configLoaded() const { return m_configLoaded; }
 
@@ -111,6 +115,8 @@ public:
     Q_INVOKABLE void setVramRecoveryPercent(double percent);
     Q_INVOKABLE void setVramCheckInterval(int secs);
     Q_INVOKABLE void setVramCooldownSeconds(int secs);
+    Q_INVOKABLE void setVramBackend(const QString &backend);
+    Q_INVOKABLE void setVramCustomCommand(const QString &command);
     Q_INVOKABLE void setLogLevel(const QString &level);
 
     /// 手动重新加载全部配置
@@ -145,6 +151,8 @@ signals:
     void vramRecoveryChanged();
     void vramCheckIntervalChanged();
     void vramCooldownChanged();
+    void vramBackendChanged();
+    void vramCustomCommandChanged();
     void logLevelChanged();
     void configLoadedChanged();
 
@@ -188,5 +196,7 @@ private:
     double m_vramRecovery = 40.0;
     int m_vramCheckInterval = 2;
     int m_vramCooldown = 30;
+    QString m_vramBackend = QStringLiteral("auto");
+    QString m_vramCustomCommand;
     QString m_logLevel = QStringLiteral("info");
 };

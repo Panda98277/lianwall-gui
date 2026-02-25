@@ -215,6 +215,14 @@ void ConfigManager::applyFullConfig(const QJsonObject &config)
         auto v = vram["cooldown_seconds"].toInt(30);
         if (m_vramCooldown != v) { m_vramCooldown = v; emit vramCooldownChanged(); }
     }
+    {
+        auto v = vram["backend"].toString(QStringLiteral("auto"));
+        if (m_vramBackend != v) { m_vramBackend = v; emit vramBackendChanged(); }
+    }
+    {
+        auto v = vram["custom_command"].toString();
+        if (m_vramCustomCommand != v) { m_vramCustomCommand = v; emit vramCustomCommandChanged(); }
+    }
 
     // --- daemon ---
     auto daemon = config["daemon"].toObject();
@@ -241,6 +249,8 @@ void ConfigManager::applySingleKey(const QString &key, const QJsonValue &value)
     else if (key == QLatin1String("vram.recovery_percent"))   { auto v = value.toDouble(); if (qAbs(m_vramRecovery - v) > 0.01) { m_vramRecovery = v; emit vramRecoveryChanged(); } }
     else if (key == QLatin1String("vram.check_interval"))     { auto v = value.toInt(); if (m_vramCheckInterval != v) { m_vramCheckInterval = v; emit vramCheckIntervalChanged(); } }
     else if (key == QLatin1String("vram.cooldown_seconds"))   { auto v = value.toInt(); if (m_vramCooldown != v) { m_vramCooldown = v; emit vramCooldownChanged(); } }
+    else if (key == QLatin1String("vram.backend"))            { auto v = value.toString(); if (m_vramBackend != v) { m_vramBackend = v; emit vramBackendChanged(); } }
+    else if (key == QLatin1String("vram.custom_command"))     { auto v = value.toString(); if (m_vramCustomCommand != v) { m_vramCustomCommand = v; emit vramCustomCommandChanged(); } }
     else if (key == QLatin1String("daemon.log_level"))        { auto v = value.toString(); if (m_logLevel != v) { m_logLevel = v; emit logLevelChanged(); } }
     else {
         qDebug() << "[ConfigManager] Unknown config key:" << key;
@@ -346,6 +356,16 @@ void ConfigManager::setVramCooldownSeconds(int secs)
 {
     secs = qBound(10, secs, 600);
     sendSetConfig("vram.cooldown_seconds", secs);
+}
+
+void ConfigManager::setVramBackend(const QString &backend)
+{
+    sendSetConfig("vram.backend", backend);
+}
+
+void ConfigManager::setVramCustomCommand(const QString &command)
+{
+    sendSetConfig("vram.custom_command", command);
 }
 
 void ConfigManager::setLogLevel(const QString &level)

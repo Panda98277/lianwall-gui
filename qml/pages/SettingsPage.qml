@@ -425,6 +425,37 @@ Item {
                         }
 
                         ConfigRow {
+                            label: qsTr("后端")
+                            hint: qsTr("auto=自动检测, custom=自定义命令")
+
+                            StyledSelect {
+                                selectWidth: 140
+                                model: [
+                                    { text: qsTr("Auto（自动检测）"), value: "auto" },
+                                    { text: qsTr("Custom（自定义）"), value: "custom" }
+                                ]
+                                currentIndex: ConfigManager.vramBackend === "custom" ? 1 : 0
+                                enabled: DaemonState.daemonConnected && ConfigManager.vramEnabled
+                                onActivated: function(idx) {
+                                    ConfigManager.setVramBackend(model[idx].value)
+                                }
+                            }
+                        }
+
+                        ConfigRow {
+                            label: qsTr("自定义命令")
+                            hint: qsTr("输出需含 used_mb=N 和 total_mb=N")
+                            visible: ConfigManager.vramBackend === "custom"
+
+                            StyledTextInput {
+                                inputText: ConfigManager.vramCustomCommand
+                                placeholder: "~/.config/lianwall/intel_vram.sh"
+                                enabled: DaemonState.daemonConnected && ConfigManager.vramEnabled
+                                onTextCommitted: function(t) { ConfigManager.setVramCustomCommand(t) }
+                            }
+                        }
+
+                        ConfigRow {
                             label: qsTr("降级阈值")
                             hint: "5% ~ 50%"
 
