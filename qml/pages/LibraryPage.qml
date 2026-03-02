@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import ".." as App
 import "../dialogs" as Dialogs
 
@@ -349,6 +350,16 @@ Item {
                                     asynchronous: true
                                     cache: true
 
+                                    // 圆角裁切
+                                    layer.enabled: true
+                                    layer.effect: OpacityMask {
+                                        maskSource: Rectangle {
+                                            width: thumbImage.width
+                                            height: thumbImage.height
+                                            radius: App.Theme.radiusMedium   // 与卡片圆角一致
+                                        }
+                                    }
+
                                     // 加载占位
                                     Rectangle {
                                         anchors.fill: parent
@@ -371,6 +382,7 @@ Item {
                                         }
                                     }
                                 }
+
 
                                 // 状态标记（左上角）
                                 Row {

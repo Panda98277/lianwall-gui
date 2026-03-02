@@ -22,6 +22,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     QuickControls2
     Network
     LinguistTools
+    Core5Compat
 )
 
 # ============================================================================
@@ -88,6 +89,7 @@ target_link_libraries(lianwall-gui PRIVATE
     Qt6::Quick
     Qt6::QuickControls2
     Qt6::Network
+    Qt6::Core5Compat
 )
 
 # ============================================================================
